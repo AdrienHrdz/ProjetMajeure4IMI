@@ -19,88 +19,216 @@ S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
 I_open=cv2.dilate(cv2.erode(thresh1,S),S)
 plt.subplot(223)
 plt.imshow(cv2.cvtColor(I_open,cv2.COLOR_BGR2RGB))
-I=I_open
+IMAGE=I_open
 
 #partie snake
 
-def moyenne(liste):
-    return sum(liste)/len(liste)
+Lx, Ly = np.shape(IMAGE)
 
-li,col = len(I),len(I[0])
-alpha = 1
-beta = 0.5
-gamma = 15
-centre=[int(col/2),int(li/2)]
-rayon=min(int((col-5)/2),int((li-5)/2))
-delta = 1.
+plt.imshow(IMAGE,'gray')
+plt.title('Image de départ')
+plt.show()
+
+#plt.imshow(ImNoise, 'gray')
+#plt.title('Image bruitée')
+#plt.show()
+#
+#plt.imshow(ImNoiseFilter, 'gray')
+#plt.title('Image Bruitée puis filtrée')
+#plt.show()
+
+# %%
+###Creation du snake###
+centre=[int(Ly/2),int(Lx/2)]
+rayon=min(int((Lx-5)/2), int((Ly-5)/2))
+
 K = 1000
-snakeX,snakeY = [],[]
+snakeX = []
+snakeY = []
 pas = (2*np.pi)/K
 for i in range(K):
-    teta = i*pas
-    snakeX = np.append(snakeX, int(centre[0] + rayon * np.cos(teta)))
-    snakeY = np.append(snakeY, int(centre[1] + rayon * np.sin(teta)))
+    theta = i*pas
+    snakeX = np.append(snakeX, int(centre[0] + rayon * np.cos(theta)))
+    snakeY = np.append(snakeY, int(centre[1] + rayon * np.sin(theta)))
+# print(snakeX.shape)
+c = np.zeros((K,1,2))
+# print(c.shape)
+c[:,:,0] = snakeX.reshape((K,1))
+c[:,:,1] = snakeY.reshape((K,1))
+#c = np.concatenate((snakeX.reshape((K,1)),snakeY.reshape((K,1))),axis=2)
+# print(c[:,0,0])
+contour_list = []
+contour_list.append(c.astype(int))
+snake = cv2.drawContours(image=cv2.cvtColor(IMAGE, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
+plt.imshow(snake)
+plt.show()
+
+#snakeNoise = cv2.drawContours(image=cv2.cvtColor(ImNoise, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
+#plt.imshow(snakeNoise)
+#plt.show()
+#
+#snakeNoiseFilter = cv2.drawContours(image=cv2.cvtColor(ImNoiseFilter, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
+#plt.imshow(snakeNoiseFilter)
+#plt.show()
 
 
+# %%
+## Choix de l'image de départ
+#choix = 'NaN'
+#if choix == 'noise':
+#    IMAGE = ImNoise
+#elif choix == 'noisefilter':
+#    IMAGE = ImNoiseFilter
+#else:
+#    pass
+
+# %%
+### Parametres ###
+alpha = 1.235
+beta = 0.1
+gamma = .2
+
+# %% [markdown]
+# #### On défini les matrices pour les opérateurs
+# La matrice `D1` correspond à une approximation de la dérivée par différence finies. La matrice `D2` correspond à une dérivée seconde et `D4` à une dérivée quatrième.
+
+# %%
+###Creation de D2, D4, D et A###
 Id = np.identity(K)
 D1 = np.roll(Id, 1, axis=-1) + Id*(0) - np.roll(Id,-1, axis=1)
 D2 = np.roll(Id, -1, axis=1) + Id*(-2) + np.roll(Id,1, axis=1)
 D4 = (np.roll(Id, -1, axis=1) + np.roll(Id,1, axis=1))*-4 + (np.roll(Id, -2, axis=1) + np.roll(Id,2, axis=1)) + Id*(6)
 D = alpha*D2 - beta*D4
 A = np.linalg.inv(Id - D)
+#logging.info('Operators generated')
 
+# %%
+# Le Gradient
+[Gx,Gy] = np.gradient(IMAGE.astype(float))
+plt.figure()
+plt.subplot(1,3,1)
+plt.imshow(Gx)
+plt.subplot(1,3,2)
+plt.imshow(Gy)
+Gx_norm = Gx/np.max(Gx)
+Gy_norm = Gy/np.max(Gy)
+NormeGrad = np.square(Gx_norm)+np.square(Gy_norm)
 
-Gy,Gx = np.gradient(I.astype(float))
-NormGrad = Gx**2 + Gy**2
-GGy, GGx = np.gradient(NormGrad)
+plt.subplot(1,3,3)
+plt.imshow(NormeGrad,'gray')
+plt.show()
+#NormeGrad = NormeGrad*20
+# Gradient de la norme 
+[GGx,GGy] = np.gradient(NormeGrad.astype(float))
 
-NRJ,NRJELA,NRJCOURB,NRJEXT = [],[],[],[] 
-MOY,MINMAX,DELTA = [],[],[]
-GxSnake = np.zeros(snakeX.shape)
-GySnake = np.zeros(snakeY.shape)
-it=0  # nombre d'itération
+#logging.info('Gradient computed')
+
+# %%
+# Algo ITERATIF
+limite = 17000
+iteration = 0
+nbfigure = 1
+
+Energie = list()
+energie_ela = list()
+energie_courb = list()
+enregie_ext = list()
+
+MEMORY = []
+Xn = snakeX
+Yn = snakeY
+MEMORY.append([Xn,Yn])
+#logging.info('Algorithm initialized')
+
+# %%
 flag = True
-j=0
-
-limite = 10000
-
-
-while flag and it<limite:
-    for i in range(K):
-        Y=int(snakeY[i])
-        X=int(snakeX[i])
-        GxSnake[i] = GGx[Y][X]
-        GySnake[i] = GGy[Y][X]
-    snakeX = np.dot(A, snakeX+gamma*GxSnake)
-    snakeY = np.dot(A, snakeY+gamma*GySnake)
+while flag or (iteration < limite):
+    # itération du SNAKE
+    Xn1 = np.dot(A, Xn + gamma*GGx[Yn.astype(int),Xn.astype(int)] )
+    Yn1 = np.dot(A, Yn + gamma*GGy[Yn.astype(int),Xn.astype(int)] )     
+    Xn = Xn1
+    Yn = Yn1   
+    MEMORY.append([Xn,Yn])
     # Calcul de l'energie
-    ELA,COURB,EXT = 0,0,0
-    Xnprime = np.dot(D1, snakeX)
-    Ynprime = np.dot(D1, snakeY)
-    Xnseconde = np.dot(D2, snakeX)
-    Ynseconde = np.dot(D2, snakeY)
+    ELA = 0
+    COURB  = 0
+    EXT = 0
+    Xnprime = np.dot(D1, Xn)
+    Ynprime = np.dot(D1, Yn)
+    Xnseconde = np.dot(D2, Xn)
+    Ynseconde = np.dot(D2, Yn)
     for k in range(K):
         ELA += alpha*0.5*np.sqrt(np.square(Xnprime[k]) + np.square(Ynprime[k]))
         COURB += beta*0.5*np.sqrt(np.square(Xnseconde[k]) + np.square(Ynseconde[k]))
-        EXT += NormGrad[int(snakeY[k]),int(snakeX[k])]**2
-    NRJ.append(ELA+COURB-EXT)
-    NRJEXT.append(EXT)
-    NRJCOURB.append(COURB)
-    NRJELA.append(ELA)
+        EXT -= np.square(NormeGrad[int(Yn[k]),int(Xn[k])])
+    Energie.append(ELA+COURB+EXT)
+    enregie_ext.append(EXT)
+    energie_courb.append(COURB)
+    energie_ela.append(ELA)
 
-    if it>300:
-        delta1 = [NRJ[it-i] for i in range(250)]
-        MOY.append(moyenne(delta1))
-    it+=1
+    # Flag de sortie
+    # 
+    # TODO : 
+    #   Calculer energie sur fenetre glissante pour flag de sortie afin de lisser les variations
+    # if iteration > 200:
+    #     nbSplit = iteration // 50
+    #     EnerSplit = np.split(Energie, nbSplit)
+    #     e1 = EnerSplit[-1]
+    #     e2 = EnerSplit[-2]
+    if (abs(Energie[iteration]-Energie[iteration-1])/Energie[iteration]<10):
+        flag = False
+
+    
+    # Affichage
+    if iteration % 10 == 0:
+        c = np.zeros((K,1,2))
+        c[:,:,0] = Xn1.reshape((K,1))
+        c[:,:,1] = Yn1.reshape((K,1))
+        contour_list = []
+        contour_list.append(c.astype(int))
+        snake = cv2.drawContours(image=cv2.cvtColor(IMAGE, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
+        # Sauvegarde des images pour faire l'animation
+        #filename = f"img_{iteration:05d}.png"
+        
+        #cv2.imwrite(filename, snake)
+
+    # Fin de la boucle
+    iteration += 1
 
 
+# %%
+c = np.zeros((K,1,2))
+print(c.shape)
+c[:,:,0] = Xn1.reshape((K,1))
+c[:,:,1] = Yn1.reshape((K,1))
+contour_list = []
+contour_list.append(c.astype(int))
+snake = cv2.drawContours(image=cv2.cvtColor(IMAGE, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
+plt.imshow(snake)
+plt.title('Itération finale')
 
-plt.figure()
-plt.imshow(I,'gray')
-plt.plot(snakeX, snakeY, 'r', linewidth=1)
-plt.text(col/6,15,"Alpha = "+str(alpha)+" ; Beta = "+str(beta)+" ; Gamma = "+str(gamma))
-plt.text(col/3,25,"Pour "+str(it)+" itérations")
+# %% [markdown]
+# ####  Affichage de la fonction de coût
 
+# %%
+plt.plot(Energie)
+plt.title('Fonction de coût')
+plt.show()
+
+# %%
+plt.plot(energie_ela)
+plt.title('Energie élastique')
+plt.show()
+
+# %%
+plt.plot(energie_courb)
+plt.title('Energie de courbure')
+plt.show()
+
+# %%
+plt.plot(enregie_ext)
+plt.title('Energie externe')
+plt.show()
 
 
 plt.show()
