@@ -84,9 +84,9 @@ plt.show()
 
 # %%
 ### Parametres ###
-alpha = 1.235
+alpha = 3
 beta = 0.1
-gamma = .2
+gamma = .6
 
 # %% [markdown]
 # #### On défini les matrices pour les opérateurs
@@ -125,7 +125,7 @@ plt.show()
 
 # %%
 # Algo ITERATIF
-limite = 17000
+limite = 5000
 iteration = 0
 nbfigure = 1
 
