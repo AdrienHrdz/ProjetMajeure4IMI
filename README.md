@@ -1,7 +1,7 @@
 # Projet Majeure
 Detection de grains de beautés defectueux 
 
-## A : aspect
+## A : asymetrie
 
 ## B : bords
 
