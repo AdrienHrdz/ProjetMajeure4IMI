@@ -40,7 +40,7 @@ plt.show()
 # %%
 ###Creation du snake###
 centre=[int(Ly/2),int(Lx/2)]
-rayon=min(int((Lx-5)/2), int((Ly-5)/2))
+rayon=min(int((Lx-5)/2), int((Ly-5)/2))/3
 
 K = 1000
 snakeX = []
@@ -86,7 +86,7 @@ plt.show()
 ### Parametres ###
 alpha = 3
 beta = 0.1
-gamma = .6
+gamma = 1.2
 
 # %% [markdown]
 # #### On défini les matrices pour les opérateurs
@@ -125,7 +125,7 @@ plt.show()
 
 # %%
 # Algo ITERATIF
-limite = 5000
+limite = 3000
 iteration = 0
 nbfigure = 1
 
@@ -205,6 +205,7 @@ contour_list = []
 contour_list.append(c.astype(int))
 snake = cv2.drawContours(image=cv2.cvtColor(IMAGE, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
 plt.imshow(snake)
+cv2.imwrite("itération finale.png",snake)
 plt.title('Itération finale')
 
 # %% [markdown]
