@@ -13,7 +13,7 @@ import numpy as np
 # puis en fonction faire des pourcentages
 
 
-I_original=cv2.imread('data/color.jpg')
+I_original=cv2.imread('data/color3.jpg')
 
 I_flout = cv2.blur(I_original,(15,15))
 
@@ -29,11 +29,10 @@ HSV_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2HSV)
 mask1 = cv2.inRange(I_flout, (20, 20, 110), (140, 140,210)) #BRG
 
 
-#maskmarron = cv2.inRange(HSV_img, (14, 95, 98), (52, 95,98))
+maskmarron = cv2.inRange(HSV_img, (14, 95, 98), (52, 95,98))
 
 
-
-maskred = cv2.inRange(HSV_img, (212, 95, 98), (264, 95,98))
+#maskred = cv2.inRange(HSV_img, (212, 95, 98), (264, 95,98))
 
 #mask = cv2.bitwise_or(maskgreen, maskred)
 
@@ -64,7 +63,7 @@ plt.subplot(223)
 plt.imshow(mask1,'gray') 
 plt.title('Image mask rgb ')
 plt.subplot(224)
-plt.imshow(maskred,'gray') 
+plt.imshow(maskmarron,'gray') 
 plt.title('Image mask hsv ')
 plt.show()
 
