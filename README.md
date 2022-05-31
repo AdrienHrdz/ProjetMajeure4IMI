@@ -6,7 +6,7 @@ Forme ni ronde ni ovale
 ## B : bords
 Bords mal délimités, irréguliers
 ## C : couleur
-Présence de plusieurs 
+Présence de plusieurs couleurs
 ## D : diametre
 Anormal si spuérieur à 6mm
 ## E : evolution
