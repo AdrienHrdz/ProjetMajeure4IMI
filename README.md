@@ -10,5 +10,3 @@ Detection de grains de beautés defectueux
 ## D : diametre
 
 ## E : evolution
-
-## tets
