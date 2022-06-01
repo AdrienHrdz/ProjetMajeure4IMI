@@ -28,3 +28,7 @@ def LECTURE_IMAGE(filename):
 
     return img_trans
 
+'''
+doc : 
+https://linuxtut.com/fr/c6e468da7007734c897f/
+'''
