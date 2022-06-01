@@ -232,4 +232,39 @@ plt.title('Energie externe')
 plt.show()
 
 
+for i in range(len(Xn)):
+    if (i<250):
+        color= "red"
+    elif (i>=250 and i < 500):
+        color="green"
+    elif (i>=500 and i<750):
+        color="blue"
+    elif (i>=750 and i<1000):
+        color="yellow"
+    plt.plot(Xn[i],-Yn[i],marker="o",color=color)
+    #plt.plot(Xn[200],Yn[200],marker="o",color)
+    #plt.plot(Xn[700],Yn[700],marker="o",color)
+    #plt.plot(Xn[900],Yn[900],marker="o",color)
+plt.title('Energie externe')
+plt.show()
+print(Xn)
+print(Yn)
+
+A=[Xn[140],-Yn[140]]
+B=[Xn[200],-Yn[200]]
+C=[Xn[700],-Yn[700]]
+D=[Xn[900],-Yn[900]]
+plt.plot(Xn[140],-Yn[140],marker="o",color="red")
+plt.plot(Xn[200],-Yn[200],marker="o",color="green")
+plt.plot(Xn[700],-Yn[700],marker="o",color="blue")
+plt.plot(Xn[900],-Yn[900],marker="o",color="yellow")
+plt.plot([A[0],C[0]],[A[1],C[1]],color="red")
+plt.plot([B[0],D[0]],[B[1],D[1]],color="blue")
+#cv2.line(A,C)
+#cv2.line(B,D)
+plt.show()
+
+
+
+
 plt.show()
