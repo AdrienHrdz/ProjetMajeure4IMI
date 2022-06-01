@@ -17,9 +17,7 @@ I_original=cv2.imread('data/grainboTbien.jpg')
 
 I_flout = cv2.blur(I_original,(13,13))
 
-I_original_B = I_original[:,:,0]
-I_original_G = I_original[:,:,1]
-I_original_R = I_original[:,:,2]
+lenx, leny, dim = np.shape(I_flout)
 
 RGB_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2RGB)
 
@@ -28,19 +26,18 @@ HSV_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2HSV)
 h,s,v = cv2.split(HSV_img)
 
 #Bon réglages pour color.jpg
-# lower = np.array([14/2,100,0],dtype=np.uint8)
-# upper = np.array([60/2,255,255],dtype=np.uint8)
-# seg_h = cv2.inRange(HSV_img,lower,upper)
+lower = np.array([14/2,100,0],dtype=np.uint8)
+upper = np.array([60/2,255,255],dtype=np.uint8)
+seg_h = cv2.inRange(HSV_img,lower,upper)
 
 #Idée post-traitement compare l'aire du grain de beauté à l'aire de la tâche de couleur si celle ci est trop importante alors malade
 
 #Réglages pour grainboTbien
-lower = np.array([0/2,83,0],dtype=np.uint8)
-upper = np.array([14/2,255,255],dtype=np.uint8)
-seg_h = cv2.inRange(HSV_img,lower,upper)
-S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
-seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
-
+# lower = np.array([0/2,83,0],dtype=np.uint8)
+# upper = np.array([14/2,255,255],dtype=np.uint8)
+# seg_h = cv2.inRange(HSV_img,lower,upper)
+# S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
+# seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
 
 
 plt.figure() # ouvre une nouvelle figure
@@ -54,11 +51,55 @@ plt.subplot(223)
 plt.imshow(s,'gray') 
 plt.title('Image S ')
 plt.subplot(224)
-plt.imshow(seg_h_open,'gray') 
+plt.imshow(seg_h,'gray') 
 plt.title('Image Seg H ')
 plt.show()
 
+#Méthode des K-means
+#Potentiellement fonctionnel pour color et color3
+#Si la différence de couleur entre le dernier k (grain de beauté) et l'avant dernier (grain de beauté ou tâche) est trop importante (à quantifier) alors => pas bien
 
+#Tableau bi-dimensionnel
+pixel_vals = RGB_img.reshape((-1,3)) 
+  
+pixel_vals = np.float32(pixel_vals)
+
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.8) 
+  
+k = 4
+retval, labels, centers = cv2.kmeans(pixel_vals, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
+  
+centers = np.uint8(centers) 
+segmented_data = centers[labels.flatten()] 
+
+labels_img = labels.reshape((lenx,leny)) 
+
+segmented_image = segmented_data.reshape((RGB_img.shape)) 
+
+Coords1 = []
+Coords2 = []
+bool1=1
+bool2=1
+for i in range(lenx):
+    for j in range(leny):
+        if(labels_img[i,j] == 0 and bool1 == 1):
+            Coords1.append(i)
+            Coords1.append(j)
+            bool1=0
+        if(labels_img[i,j]== 1 and bool2 == 1):
+            Coords2.append(i)
+            Coords2.append(j)
+            bool2=0;
+
+[r1,g1,b1] = segmented_image[Coords1[0],Coords1[1]]
+
+[r2,g2,b2] = segmented_image[Coords2[0],Coords2[1]]
+
+
+
+plt.figure() # ouvre une nouvelle figure
+plt.imshow(segmented_image)
+plt.show()
 
 
 ## mask of red color pour RGB
