@@ -268,14 +268,18 @@ IMAGE=I_open.astype(TYPE)
 
 print("size Iopen : " +str(np.shape(I_open)))
 
-src_img=I_open
+src_img=I>=125
+
+src_img=src_img.astype(np.uint8)
+src_img=src_img*255
+#cv2.cvtColor(I_open,cv2.COLOR_RGB2GRAY)
 #color_img = cv2.cvtColor(src_img,cv2.COLOR_RGB2GRAY)
 color_img=src_img
 print("size color_img : " + str(np.shape(color_img)))
-
-circles_img = cv2.HoughCircles(src_img,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+rows=src_img.shape[0]
+circles_img = cv2.HoughCircles(src_img,cv2.HOUGH_GRADIENT,1,rows,param1=250,param2=10,minRadius=0,maxRadius=0)
 circles_img = np.uint16(np.around(circles_img))
-
+print(circles_img)
 for i in circles_img[0,:]:
     cv2.circle(color_img,(i[0],i[1]),i[2],(0,255,0),2)
     cv2.circle(color_img,(i[0],i[1]),2,(0,0,255),3)
