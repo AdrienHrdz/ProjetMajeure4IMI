@@ -14,10 +14,25 @@ print(bweuler)
 plt.imshow(thresh1, cmap='gray')
 plt.show()
 
-for n in range(10, 200, 10):
-    bweuler1 = cv2.connectedComponents(IMAGE.astype(np.uint8))[0]
+n = 0
+bweuler01, bweuler02 = 0, 0
+while bweuler01 == bweuler02:
+    n += 10
+    bweuler01 = cv2.connectedComponents(IMAGE.astype(np.uint8))[0]
     element_structurant = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(n,n))
-    IMAGE_OPEN = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, element_structurant)
-    bweuler2 = cv2.connectedComponents(IMAGE_OPEN.astype(np.uint8))[0]
-    print(n, bweuler1, bweuler2)
+    IMAGE_OPEN = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN, element_structurant)
+    bweuler02 = cv2.connectedComponents(IMAGE_OPEN.astype(np.uint8))[0]
+    print(n, bweuler01, bweuler02)
+
+m = 0
+bweuler11, bweuler12 = 0, 0
+while bweuler11 == bweuler12:
+    m += 1
+    bweuler11 = cv2.connectedComponents(IMAGE.astype(np.uint8))[0]
+    element_structurant = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(n+m,n+m))
+    IMAGE_OPEN = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN, element_structurant)
+    bweuler12 = cv2.connectedComponents(IMAGE_OPEN.astype(np.uint8))[0]
+    print(n+m, bweuler11, bweuler12)
+    
+
 
