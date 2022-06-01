@@ -12,7 +12,7 @@ def MESURE_DIAMETRE(filename):
     IMAGE = cv2.cvtColor(IMAGE, cv2.COLOR_RGB2GRAY)
     ret,thresh1=cv2.threshold(IMAGE,125,255,cv2.THRESH_BINARY_INV)
     bweuler, array_components = cv2.connectedComponents(IMAGE.astype(np.uint8))
-    print(bweuler)
+    #print(bweuler)
     
     # Mesure grossiere
     n = 0
@@ -23,7 +23,7 @@ def MESURE_DIAMETRE(filename):
         element_structurant = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(n,n))
         IMAGE_OPEN = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN, element_structurant)
         bweuler02 = cv2.connectedComponents(IMAGE_OPEN.astype(np.uint8))[0]
-        print(n, bweuler01, bweuler02)
+        #print(n, bweuler01, bweuler02)
     
     # Mesure fine
     m = 0
@@ -34,7 +34,7 @@ def MESURE_DIAMETRE(filename):
         element_structurant = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(n+m,n+m))
         IMAGE_OPEN = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN, element_structurant)
         bweuler12 = cv2.connectedComponents(IMAGE_OPEN.astype(np.uint8))[0]
-        print(n+m, bweuler11, bweuler12)
+        #print(n+m, bweuler11, bweuler12)
     
     # Conversion px => mm
     DIAMETRE_px = n+m
