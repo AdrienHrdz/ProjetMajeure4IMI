@@ -12,7 +12,7 @@ IMAGE = cv2.cvtColor(IMAGE, cv2.COLOR_RGB2GRAY)
 plt.imshow(IMAGE, cmap='gray')
 plt.show()
 
-[Gx,Gy] = np.gradient(IMAGE.astype(float))
+[Gx,Gy] = np.gradient(IMAGE.astype(float)) # normaliser 
 NormGrad = np.sqrt(np.square(Gx) + np.square(Gy))
 
 plt.imshow(NormGrad, cmap='gray')
