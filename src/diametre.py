@@ -44,6 +44,5 @@ def MESURE_DIAMETRE(filename):
     print(f'taille du diametre : {DIAMETRE_mm} mm')
     
     return DIAMETRE_mm
-    
 
-MESURE_DIAMETRE(filename)
+    

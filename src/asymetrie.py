@@ -1,4 +1,4 @@
-from re import I
+# from re import I
 #from turtle import color
 import cv2, platform,time
 from cv2 import waitKey
