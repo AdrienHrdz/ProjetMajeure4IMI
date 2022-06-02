@@ -13,17 +13,19 @@ import numpy as np
 # puis en fonction faire des pourcentages
 
 #grainboTbien
-I_original=cv2.imread('data/grainboTbien.jpg')
+I_original=cv2.imread('data/color3.jpg')
 
 I_flout = cv2.blur(I_original,(13,13))
 
-lenx, leny, dim = np.shape(I_flout)
+#lenx, leny, dim = np.shape(I_flout)
 
 RGB_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2RGB)
 
 HSV_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2HSV)
 
 h,s,v = cv2.split(HSV_img)
+
+lenx, leny = np.shape(h)
 
 #Bon réglages pour color.jpg
 lower = np.array([14/2,100,0],dtype=np.uint8)
@@ -60,21 +62,26 @@ plt.show()
 #Si la différence de couleur entre le dernier k (grain de beauté) et l'avant dernier (grain de beauté ou tâche) est trop importante (à quantifier) alors => pas bien
 
 #Tableau bi-dimensionnel
-pixel_vals = RGB_img.reshape((-1,3)) 
+
+pixel_vals1 = h.reshape((-1,1)) 
   
-pixel_vals = np.float32(pixel_vals)
+pixel_vals2 = RGB_img.reshape((-1,3)) 
+
+pixel_vals1 = np.float32(pixel_vals1)
+
+pixel_vals2 = np.float32(pixel_vals2)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.8) 
   
-k = 4
-retval, labels, centers = cv2.kmeans(pixel_vals, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
+k = 2
+retval, labels, centers = cv2.kmeans(pixel_vals1, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
   
 centers = np.uint8(centers) 
 segmented_data = centers[labels.flatten()] 
 
 labels_img = labels.reshape((lenx,leny)) 
 
-segmented_image = segmented_data.reshape((RGB_img.shape)) 
+segmented_image = segmented_data.reshape((h.shape)) 
 
 Coords1 = []
 Coords2 = []
@@ -89,12 +96,13 @@ for i in range(lenx):
         if(labels_img[i,j]== 1 and bool2 == 1):
             Coords2.append(i)
             Coords2.append(j)
-            bool2=0;
+            bool2=0
 
-[r1,g1,b1] = segmented_image[Coords1[0],Coords1[1]]
+#[r1,g1,b1] = segmented_image[Coords1[0],Coords1[1]]
+#[r2,g2,b2] = segmented_image[Coords2[0],Coords2[1]]
 
-[r2,g2,b2] = segmented_image[Coords2[0],Coords2[1]]
-
+teinte1=segmented_image[Coords1[0],Coords1[1]]
+teinte2=segmented_image[Coords2[0],Coords2[1]]
 
 
 plt.figure() # ouvre une nouvelle figure
