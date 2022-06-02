@@ -9,7 +9,7 @@ filename = './testBords/IMG_20220601_114342.jpg'
 IMAGE = LECTURE_IMAGE(filename)
 IMAGE = cv2.cvtColor(IMAGE, cv2.COLOR_RGB2GRAY)
 
-plt.imshow(IMAGE, cmap='gray')
+plt.imshow(IMAGE>125, cmap='gray')
 plt.show()
 
 [Gx,Gy] = np.gradient(IMAGE.astype(float)) # normaliser 

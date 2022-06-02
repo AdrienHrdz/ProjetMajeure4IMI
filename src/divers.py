@@ -32,3 +32,8 @@ def LECTURE_IMAGE(filename):
 doc : 
 https://linuxtut.com/fr/c6e468da7007734c897f/
 '''
+
+filename = './aruco./IMG_20220531_170740.jpg'
+IMAGE = LECTURE_IMAGE(filename)
+plt.imshow(IMAGE,'gray')
+plt.show()
