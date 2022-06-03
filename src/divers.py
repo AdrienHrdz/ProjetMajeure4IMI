@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 
 def LECTURE_IMAGE(filename):
+    # doc : 
+    # https://linuxtut.com/fr/c6e468da7007734c897f/
+
     p_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
     img = cv2.imread(f'{filename}',0)
     corners, ids, rejectedImgPoints = aruco.detectMarkers(img, p_dict) #détection
@@ -28,12 +31,12 @@ def LECTURE_IMAGE(filename):
 
     return img_trans
 
-'''
-doc : 
-https://linuxtut.com/fr/c6e468da7007734c897f/
-'''
+def main():
+    filename = './aruco./IMG_20220531_170740.jpg'
+    IMAGE = LECTURE_IMAGE(filename)
+    plt.imshow(IMAGE, cmap='gray')
+    plt.show()
+    pass
 
-filename = './aruco./IMG_20220531_170740.jpg'
-IMAGE = LECTURE_IMAGE(filename)
-plt.imshow(IMAGE,'gray')
-plt.show()
+if __name__ == '__main__':
+    main()
