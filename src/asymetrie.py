@@ -278,11 +278,44 @@ plt.imshow(I)
 plt.plot(circles_img[0,0,0],circles_img[0,0,1],marker="o",color="red")
 
 
-
+h=20
 print(min(Xn),min(Yn))
 print(max(Xn),max(Yn))
 
 plt.figure(4)
-cropped=I_open.crop((min(Xn),min(Yn),max(Xn),max(Yn)))
-plt.imshow(cropped)
+cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h).astype(int):max(Xn+h).astype(int)]
+plt.imshow(cropped,'gray')
+
+#test hauteur/largeur
+ecart=abs((max(Xn).astype(int)-min(Xn).astype(int))-(max(Yn).astype(int)-min(Yn).astype(int)))
+if (max(Xn)-min(Xn)>max(Yn)-min(Yn)):
+    cropped=I_open[min(Yn-h-(ecart/2).astype(int)).astype(int):max(Yn+h+(ecart/2).astype(int)).astype(int),min(Xn-h).astype(int):max(Xn+h).astype(int)]
+    h,w=np.shape(cropped)
+    if(h==w):
+        print("c'est ok")
+elif (max(Xn)-min(Xn)<max(Yn)-min(Yn)):
+    cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h-(ecart/2).astype(int)).astype(int):max(Xn+h+(ecart/2).astype(int)).astype(int)]
+    h,w=np.shape(cropped)
+    if(h==w):
+        print("c'est ok")
+elif (max(Xn)-min(Xn)==max(Yn)-min(Yn)):
+    print("c'est ok")
+
+plt.figure(5)
+plt.imshow(cropped,'gray')
+
+cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_90_CLOCKWISE)
+
+plt.figure(6)
+plt.imshow(cropped_rotate,'gray')
+
+
+final=cv2.bitwise_or(cropped_rotate,cropped,mask=None)-cv2.bitwise_and(cropped_rotate,cropped,mask=None)
+plt.figure(7)
+plt.imshow(final,'gray')
+
+cnt, hierarchy=cv2.findContours(final,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
+cnt2=cnt[0]
+area= cv2.contourArea(cnt2)
+print("l'aire est de  : ",area)
 plt.show()
