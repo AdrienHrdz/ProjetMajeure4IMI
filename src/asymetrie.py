@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as mpimg
 from PIL import Image 
+from scipy import ndimage
 plt.figure(1)
-
-I=cv2.imread('data/color2.jpg',0)#.astype(float)
+#importation de l'image a étudié
+I=cv2.imread('data/gdb_benin.jpg',0)#.astype(float)
 plt.subplot(221)
+#prétraitement de l'image
 plt.imshow(cv2.cvtColor(I,cv2.COLOR_BGR2RGB))
 ret,thresh1=cv2.threshold(I,125,255,cv2.THRESH_BINARY)
 plt.subplot(222)
@@ -21,6 +23,7 @@ S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
 I_open=cv2.dilate(cv2.erode(thresh1,S),S)
 plt.subplot(223)
 plt.imshow(cv2.cvtColor(I_open,cv2.COLOR_BGR2RGB))
+#afin d'avoir le bon type
 TYPE=type(I)
 
 IMAGE=I_open.astype(TYPE)
@@ -28,23 +31,11 @@ IMAGE2=I_open
 #partie snake
 
 Lx, Ly = np.shape(IMAGE2)
-#
-#plt.imshow(IMAGE,'gray')
-#plt.title('Image de départ')
-
-
-#plt.imshow(ImNoise, 'gray')
-#plt.title('Image bruitée')
-#plt.show()
-#
-#plt.imshow(ImNoiseFilter, 'gray')
-#plt.title('Image Bruitée puis filtrée')
-#plt.show()
 
 # %%
 ###Creation du snake###
 centre=[int(Ly/2),int(Lx/2)]
-rayon=min(int((Lx-5)/2), int((Ly-5)/2))/1.5
+rayon=min(int((Lx-5)/2), int((Ly-5)/2))/3
 
 K = 1000
 snakeX = []
@@ -195,28 +186,7 @@ plt.imshow(snake)
 cv2.imwrite("itération finale.png",snake)
 plt.title('Itération finale')
 
-# %% [markdown]
-# ####  Affichage de la fonction de coût
 
-# %%
-# plt.plot(Energie)
-# plt.title('Fonction de coût')
-# plt.show()
-
-# # %%
-# plt.plot(energie_ela)
-# plt.title('Energie élastique')
-# plt.show()
-
-# # %%
-# plt.plot(energie_courb)
-# plt.title('Energie de courbure')
-# plt.show()
-
-# # %%
-# plt.plot(enregie_ext)
-# plt.title('Energie externe')
-# plt.show()
 
 
 for i in range(len(Xn)):
@@ -229,14 +199,13 @@ for i in range(len(Xn)):
     elif (i>=750 and i<1000):
         color="yellow"
     plt.plot(Xn[i],-Yn[i],marker="o",color=color)
-    #plt.plot(Xn[200],Yn[200],marker="o",color)
-    #plt.plot(Xn[700],Yn[700],marker="o",color)
-    #plt.plot(Xn[900],Yn[900],marker="o",color)
+    
 plt.title('Energie externe')
 plt.show()
 #print(Xn)
 #print(Yn)
 
+#partie affichant le snake en couleur pas si important
 A=[Xn[140],-Yn[140]]
 B=[Xn[200],-Yn[200]]
 C=[Xn[700],-Yn[700]]
@@ -251,60 +220,65 @@ plt.plot([B[0],D[0]],[B[1],D[1]],color="blue")
 # plt.show()
 
 print("size Iopen : " +str(np.shape(I_open)))
-
+#seuillage de l'image pour la detection des cercles
 src_img=I>=125
 
 src_img=src_img.astype(np.uint8)
 src_img=src_img*255
-#cv2.cvtColor(I_open,cv2.COLOR_RGB2GRAY)
-#color_img = cv2.cvtColor(src_img,cv2.COLOR_RGB2GRAY)
+
 color_img=src_img
 print("size color_img : " + str(np.shape(color_img)))
 rows=src_img.shape[0]
+
+#utilisation de la fonction cv2.HoughCircles pour detecter les cercles
 circles_img = cv2.HoughCircles(src_img,cv2.HOUGH_GRADIENT,1,rows/8,param1=254,param2=10,minRadius=0,maxRadius=0)
 circles_img = np.uint16(np.around(circles_img))
 print(circles_img)
+#trace tous les cercles detectes et leurs centres
 for i in circles_img[0,:]:
     cv2.circle(color_img,(i[0],i[1]),i[2],(0,255,0),2)
     cv2.circle(color_img,(i[0],i[1]),2,(0,0,255),3)
 plt.subplot(224)
-#plt.imshow('Original Image',src_img)
 plt.imshow(cv2.cvtColor(src_img,cv2.COLOR_BGR2RGB))
-#plt.imshow('Detected Circles',color_img)
 plt.imshow(cv2.cvtColor(color_img,cv2.COLOR_BGR2RGB))
 
 plt.figure(3)
 plt.imshow(I)
 plt.plot(circles_img[0,0,0],circles_img[0,0,1],marker="o",color="red")
 
-
+#h etant un offset de 20 pixels pour d'autres critères
 h=20
-print(min(Xn),min(Yn))
-print(max(Xn),max(Yn))
-
+#affiche les paramètres pour la boite englobante
+#print(min(Xn),min(Yn))
+#print(max(Xn),max(Yn))
+#recadrer l'image par rappport à la boite englobante
 plt.figure(4)
 cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h).astype(int):max(Xn+h).astype(int)]
 plt.imshow(cropped,'gray')
 
 #test hauteur/largeur
+#calcul de l'ecart entre la hauteur et la largeur
 ecart=abs((max(Xn).astype(int)-min(Xn).astype(int))-(max(Yn).astype(int)-min(Yn).astype(int)))
+#si l'écart est impair, on l'augmente de 1
 if (ecart%2==1):
     ecart=ecart+1
 print(ecart)
+#toutes les conditions permettant les différents cas pour recadrer notre image pour qu'elle soit carrée, en fontion de l'écart
 if (max(Xn)-min(Xn)>max(Yn)-min(Yn)):
     cropped=I_open[min(Yn.astype(int)-h-(ecart/2).astype(int)).astype(int):max(Yn.astype(int)+h+(ecart/2).astype(int)).astype(int),min(Xn.astype(int)-h).astype(int):max(Xn.astype(int)+h).astype(int)]
     h,w=np.shape(cropped)
     print(h,w)
+    #nouvelles séries de test pour savoir si elle est bien de taille carré
     if(h==w):
         print("c'est ok")
-        print("b",h*w)
+        #print("b",h*w)
     elif(h<w):
         h=w
         cropped=cv2.resize(cropped,(h,w))
     elif(h>w):
         w=h
         cropped=cv2.resize(cropped,(h,w))
-    print("a",h,w)  
+    print("parfait : ",h,w)  
 elif (max(Xn)-min(Xn)<max(Yn)-min(Yn)):
     cropped=I_open[min(Yn.astype(int)-h).astype(int):max(Yn.astype(int)+h).astype(int),min(Xn.astype(int)-h-(ecart/2).astype(int)).astype(int):max(Xn.astype(int)+h+(ecart/2).astype(int)).astype(int)]
     h,w=np.shape(cropped)
@@ -326,17 +300,53 @@ elif (max(Xn)-min(Xn)==max(Yn)-min(Yn)):
 
 plt.figure(5)
 plt.imshow(cropped,'gray')
-
-cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_180)
-
+#on tourne notre image de 90 degres ou bien de 180 degrés on a le choix entre cv2.rotate_180 et cv2.rotate_90_clockwise ou cv2.rotate_90_counterclockwise
+cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_90_CLOCKWISE)
+#cropped_rotate = ndimage.rotate(cropped, 45)
+#on affiche notre image originale recadrée et celle tourner 
 plt.figure(6)
 plt.imshow(cropped_rotate,'gray')
 print(np.shape(cropped))
 print(np.shape(cropped_rotate))
+#on applique l'union moins l'intersection
 final=cv2.bitwise_or(cropped_rotate,cropped,mask=None)-cv2.bitwise_and(cropped_rotate,cropped,mask=None)
-plt.figure(7)
-plt.imshow(final,'gray')
 
+
+#dice
+inter=cv2.bitwise_or(cropped_rotate,cropped,mask=None)
+plt.figure(7)
+plt.imshow(inter,'gray')
+plt.title("intersection")
+
+cpta=0
+for i in range(h):
+    for j in range(w):
+        if(cropped[i,j]==0):
+            cpta+=1
+cptb=0
+for i in range(h):
+    for j in range(w):
+        if(inter[i,j]==0):
+            cptb+=1
+cptc=0
+for i in range(h):
+    for j in range(w):
+        if(cropped_rotate[i,j]==0):
+            cptc+=1
+
+
+print(cpta,cptb,cptc)
+dice=2*cptb/(cpta+cptc)
+
+print("dice : ",dice)
+if (dice>0.9):
+    print("c'est benin pour dice")
+else:
+    print("c'est malin pour dice")
+
+plt.figure(8)
+plt.imshow(final,'gray')
+#on recupere les contours et on calcule leur aire
 cnt, hierarchy=cv2.findContours(final,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
 cnt2=cnt[0]
 area= cv2.contourArea(cnt2)
@@ -345,7 +355,7 @@ cpt=0
 rest=h*w
 print(final.size)
 #print(final)
-
+#on calcule les pixels de l'image qui sont dans le contour
 cpt1=0
 for i in range(h):
     for j in range(w):
@@ -361,14 +371,14 @@ for i in range(h):
 print("le nombre de pixels blancs est de : ",cpt)
 print("le nombre de pixels restants est de : ",rest)
 
-
+#on calcule le ratio entre les pixels blancs et les pixels restants
 ratio=cpt/cpt1
 print(ratio)
 critere=0.93
-tu_me_fais_chier=1-ratio
-if(tu_me_fais_chier>critere):
-    print("c'est benin")
-elif(tu_me_fais_chier<critere):
-    print("c'est malin")
-print(tu_me_fais_chier)
+ratio_final=1-ratio
+if(ratio_final>critere):
+    print("c'est benin pour ratio")
+elif(ratio_final<critere):
+    print("c'est malin pour ratio")
+print("ratio_final : ",ratio_final)
 plt.show()
