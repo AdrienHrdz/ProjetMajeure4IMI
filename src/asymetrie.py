@@ -293,13 +293,17 @@ if (max(Xn)-min(Xn)>max(Yn)-min(Yn)):
     h,w=np.shape(cropped)
     if(h==w):
         print("c'est ok")
+        print(h*w)
 elif (max(Xn)-min(Xn)<max(Yn)-min(Yn)):
     cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h-(ecart/2).astype(int)).astype(int):max(Xn+h+(ecart/2).astype(int)).astype(int)]
     h,w=np.shape(cropped)
     if(h==w):
         print("c'est ok")
+        print(h*w)
 elif (max(Xn)-min(Xn)==max(Yn)-min(Yn)):
+    h,w=np.shape(cropped)
     print("c'est ok")
+    print(h*w)
 
 plt.figure(5)
 plt.imshow(cropped,'gray')
@@ -318,4 +322,31 @@ cnt, hierarchy=cv2.findContours(final,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
 cnt2=cnt[0]
 area= cv2.contourArea(cnt2)
 print("l'aire est de  : ",area)
+cpt=0
+rest=h*w
+print(final.size)
+print(final)
+
+cpt1=0
+for i in range(h):
+    for j in range(w):
+        if(final[i,j]==0):
+            cpt1+=1
+
+
+for i in range(h):
+    for j in range(w):
+        if(final[i,j]>=254):
+            cpt+=1
+            rest-=1
+print("le nombre de pixels blancs est de : ",cpt)
+print("le nombre de pixels restants est de : ",rest)
+
+
+ratio=cpt/cpt1
+print(ratio)
+tu_me_fais_chier=1-ratio
+if(tu_me_fais_chier>0.8):
+    print("c'est benin")
+print(tu_me_fais_chier)
 plt.show()
