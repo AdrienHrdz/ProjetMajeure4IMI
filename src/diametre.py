@@ -3,9 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from divers import LECTURE_IMAGE
 
-filename = './aruco./IMG_20220531_170740.jpg'
-
-
 def MESURE_DIAMETRE(filename):
     # Pre traitement
     IMAGE = LECTURE_IMAGE(filename)
@@ -45,4 +42,11 @@ def MESURE_DIAMETRE(filename):
     
     return DIAMETRE_mm
 
-    
+
+def main():
+    filename = './aruco./IMG_20220531_170740.jpg'
+    MESURE_DIAMETRE(filename)
+    pass
+
+if __name__ == '__main__':
+    main()
