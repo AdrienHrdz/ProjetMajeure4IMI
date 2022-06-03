@@ -9,7 +9,7 @@ import matplotlib.image as mpimg
 from PIL import Image 
 plt.figure(1)
 
-I=cv2.imread('data/gdb_benin.jpg',0)#.astype(float)
+I=cv2.imread('data/color2.jpg',0)#.astype(float)
 plt.subplot(221)
 plt.imshow(cv2.cvtColor(I,cv2.COLOR_BGR2RGB))
 ret,thresh1=cv2.threshold(I,125,255,cv2.THRESH_BINARY)
@@ -44,7 +44,7 @@ Lx, Ly = np.shape(IMAGE2)
 # %%
 ###Creation du snake###
 centre=[int(Ly/2),int(Lx/2)]
-rayon=min(int((Lx-5)/2), int((Ly-5)/2))/3
+rayon=min(int((Lx-5)/2), int((Ly-5)/2))/1.5
 
 K = 1000
 snakeX = []
@@ -261,7 +261,7 @@ src_img=src_img*255
 color_img=src_img
 print("size color_img : " + str(np.shape(color_img)))
 rows=src_img.shape[0]
-circles_img = cv2.HoughCircles(src_img,cv2.HOUGH_GRADIENT,1,rows,param1=250,param2=10,minRadius=0,maxRadius=0)
+circles_img = cv2.HoughCircles(src_img,cv2.HOUGH_GRADIENT,1,rows/8,param1=254,param2=10,minRadius=0,maxRadius=0)
 circles_img = np.uint16(np.around(circles_img))
 print(circles_img)
 for i in circles_img[0,:]:
@@ -288,32 +288,51 @@ plt.imshow(cropped,'gray')
 
 #test hauteur/largeur
 ecart=abs((max(Xn).astype(int)-min(Xn).astype(int))-(max(Yn).astype(int)-min(Yn).astype(int)))
+if (ecart%2==1):
+    ecart=ecart+1
+print(ecart)
 if (max(Xn)-min(Xn)>max(Yn)-min(Yn)):
-    cropped=I_open[min(Yn-h-(ecart/2).astype(int)).astype(int):max(Yn+h+(ecart/2).astype(int)).astype(int),min(Xn-h).astype(int):max(Xn+h).astype(int)]
+    cropped=I_open[min(Yn.astype(int)-h-(ecart/2).astype(int)).astype(int):max(Yn.astype(int)+h+(ecart/2).astype(int)).astype(int),min(Xn.astype(int)-h).astype(int):max(Xn.astype(int)+h).astype(int)]
     h,w=np.shape(cropped)
+    print(h,w)
     if(h==w):
         print("c'est ok")
-        print(h*w)
+        print("b",h*w)
+    elif(h<w):
+        h=w
+        cropped=cv2.resize(cropped,(h,w))
+    elif(h>w):
+        w=h
+        cropped=cv2.resize(cropped,(h,w))
+    print("a",h,w)  
 elif (max(Xn)-min(Xn)<max(Yn)-min(Yn)):
-    cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h-(ecart/2).astype(int)).astype(int):max(Xn+h+(ecart/2).astype(int)).astype(int)]
+    cropped=I_open[min(Yn.astype(int)-h).astype(int):max(Yn.astype(int)+h).astype(int),min(Xn.astype(int)-h-(ecart/2).astype(int)).astype(int):max(Xn.astype(int)+h+(ecart/2).astype(int)).astype(int)]
     h,w=np.shape(cropped)
+    print(h,w)
     if(h==w):
         print("c'est ok")
-        print(h*w)
+        print("w",h*w)
+    elif(h<w):
+        h=w
+        cropped=cv2.resize(cropped,(h,w))
+    elif(h>w):
+        w=h
+        cropped=cv2.resize(cropped,(h,w))
+    print("e",h,w) 
 elif (max(Xn)-min(Xn)==max(Yn)-min(Yn)):
     h,w=np.shape(cropped)
     print("c'est ok")
-    print(h*w)
+    print("d",h*w)
 
 plt.figure(5)
 plt.imshow(cropped,'gray')
 
-cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_90_CLOCKWISE)
+cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_180)
 
 plt.figure(6)
 plt.imshow(cropped_rotate,'gray')
-
-
+print(np.shape(cropped))
+print(np.shape(cropped_rotate))
 final=cv2.bitwise_or(cropped_rotate,cropped,mask=None)-cv2.bitwise_and(cropped_rotate,cropped,mask=None)
 plt.figure(7)
 plt.imshow(final,'gray')
@@ -325,7 +344,7 @@ print("l'aire est de  : ",area)
 cpt=0
 rest=h*w
 print(final.size)
-print(final)
+#print(final)
 
 cpt1=0
 for i in range(h):
@@ -345,8 +364,11 @@ print("le nombre de pixels restants est de : ",rest)
 
 ratio=cpt/cpt1
 print(ratio)
+critere=0.93
 tu_me_fais_chier=1-ratio
-if(tu_me_fais_chier>0.8):
+if(tu_me_fais_chier>critere):
     print("c'est benin")
+elif(tu_me_fais_chier<critere):
+    print("c'est malin")
 print(tu_me_fais_chier)
 plt.show()
