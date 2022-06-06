@@ -1,4 +1,5 @@
 import cv2
+from cv2 import imread
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,8 +13,37 @@ import numpy as np
 #Sinon autre façon de faire => Parcourir tous les pixels de l'image récuperer leur valeurs de couleur (r,g,b) 
 # puis en fonction faire des pourcentages
 
+#Fonction trouvée sur un forum
+def crop_and_resize(img, w, h):
+        im_h, im_w = np.shape(img)
+        res_aspect_ratio = w/h
+        input_aspect_ratio = im_w/im_h
+
+        if input_aspect_ratio > res_aspect_ratio:
+            im_w_r = int(input_aspect_ratio*h)
+            im_h_r = h
+            img = cv2.resize(img, (im_w_r , im_h_r))
+            x1 = int((im_w_r - w)/2)
+            x2 = x1 + w
+            img = img[:, x1:x2, :]
+        if input_aspect_ratio < res_aspect_ratio:
+            im_w_r = w
+            im_h_r = int(w/input_aspect_ratio)
+            img = cv2.resize(img, (im_w_r , im_h_r))
+            y1 = int((im_h_r - h)/2)
+            y2 = y1 + h
+            img = img[y1:y2, :, :]
+        if input_aspect_ratio == res_aspect_ratio:
+            img = cv2.resize(img, (w, h))
+
+        return img
+
 #grainboTbien
-I_original=cv2.imread('data/color3.jpg')
+I_original=cv2.imread('data/gdb_benin.jpg')
+
+#I_original=crop_and_resize(I_original,360,300)
+
+
 
 I_flout = cv2.blur(I_original,(13,13))
 
@@ -41,13 +71,16 @@ seg_h = cv2.inRange(HSV_img,lower,upper)
 # S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
 # seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
 
+I_cropped = cv2.imread('data/Figure_4.png',0)
+
+I_resize= cv2.resize(I_cropped,(360,300),interpolation=cv2.INTER_AREA)
 
 plt.figure() # ouvre une nouvelle figure
 plt.subplot(221)
 plt.imshow(RGB_img) 
 plt.title('Image original RGB')
 plt.subplot(222)
-plt.imshow(h,'gray')
+plt.imshow(I_resize,'gray')
 plt.title('Image H ')
 plt.subplot(223)
 plt.imshow(s,'gray') 
@@ -73,7 +106,7 @@ pixel_vals2 = np.float32(pixel_vals2)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.8) 
   
-k = 2
+k = 3
 retval, labels, centers = cv2.kmeans(pixel_vals1, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
   
 centers = np.uint8(centers) 
