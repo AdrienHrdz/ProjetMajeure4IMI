@@ -1,5 +1,4 @@
 import cv2
-from cv2 import imread
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,29 +13,36 @@ import numpy as np
 # puis en fonction faire des pourcentages
 
 #Fonction trouvée sur un forum
-def crop_and_resize(img, w, h):
-        im_h, im_w = np.shape(img)
-        res_aspect_ratio = w/h
-        input_aspect_ratio = im_w/im_h
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
 
-        if input_aspect_ratio > res_aspect_ratio:
-            im_w_r = int(input_aspect_ratio*h)
-            im_h_r = h
-            img = cv2.resize(img, (im_w_r , im_h_r))
-            x1 = int((im_w_r - w)/2)
-            x2 = x1 + w
-            img = img[:, x1:x2, :]
-        if input_aspect_ratio < res_aspect_ratio:
-            im_w_r = w
-            im_h_r = int(w/input_aspect_ratio)
-            img = cv2.resize(img, (im_w_r , im_h_r))
-            y1 = int((im_h_r - h)/2)
-            y2 = y1 + h
-            img = img[y1:y2, :, :]
-        if input_aspect_ratio == res_aspect_ratio:
-            img = cv2.resize(img, (w, h))
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
 
-        return img
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the
+        # dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the
+        # dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
 
 #grainboTbien
 I_original=cv2.imread('data/gdb_benin.jpg')
@@ -71,16 +77,20 @@ seg_h = cv2.inRange(HSV_img,lower,upper)
 # S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
 # seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
 
-I_cropped = cv2.imread('data/Figure_4.png',0)
+I_cropped = cv2.imread('data/Capture_fig4_test2.PNG',0)
 
-I_resize= cv2.resize(I_cropped,(360,300),interpolation=cv2.INTER_AREA)
+I_resize2 = image_resize(I_cropped,width = 360)
+
+I_fin = cv2.resize(I_resize2, (360,300), interpolation = cv2.INTER_AREA)
+
+#I_resize= cv2.resize(I_cropped,(360,300),interpolation=cv2.INTER_AREA)
 
 plt.figure() # ouvre une nouvelle figure
 plt.subplot(221)
 plt.imshow(RGB_img) 
 plt.title('Image original RGB')
 plt.subplot(222)
-plt.imshow(I_resize,'gray')
+plt.imshow(I_fin,'gray')
 plt.title('Image H ')
 plt.subplot(223)
 plt.imshow(s,'gray') 
