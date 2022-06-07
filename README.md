@@ -8,11 +8,15 @@ Pour cela on utilise les 5 critères suivants :
 ## A : asymetrie
 Forme ni ronde ni ovale.
 Mesure de similarité par rotation de la forme.
-Snake pour avoir les bords de l'object.
-4 points pour trouver le centre.
+Snake pour avoir les bords de l'objet.
+Utilisation d'une boîte englobante pour se recadrer sur le grain de beauté
+Détection de cercles et du centre de grain de beauté grâce à la transformée de Hough cirles
 Rotation de la forme depuis ce cercle.
-Mesure du nombre de pixels de différences.
-
+Mesure du nombre de pixels de différences pour faire un ratio 
+On regarde si la condition est respecté pour savoir si c'est bénin ou non
+Utilisation de la méthode dice pour obtenir un autre résultat et donc une interprétation différente
+Utilisation Metrics for the evaluation of supervised classification models
+Puis on retourne le booléen benin à false si le grain de beauté est malin et à true si le grain de beauté est bénin
 ## B : bords
 Bords mal délimités, irréguliers \
 Travail sur une coupe de l'image. 
