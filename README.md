@@ -5,7 +5,7 @@ Detection de grains de beautés cancéreux.
 Pour cela on utilise les 5 critères suivants :
 
 
-## A : asymetrie
+## *A : asymetrie*
 Forme ni ronde ni ovale.
 Mesure de similarité par rotation de la forme.
 Snake pour avoir les bords de l'objet.
@@ -19,7 +19,7 @@ Utilisation Metrics for the evaluation of supervised classification models
 Puis on retourne le booléen benin à false si le grain de beauté est malin et à true si le grain de beauté est bénin.
 
 
-## B : bords
+## *B : bords*
 Bords mal délimités, irréguliers \
 Travail sur une coupe de l'image. 
 TV pour lisser la texture 
@@ -30,17 +30,17 @@ On effectue un moyennage de la norme du gradient au carré sur le nombre de pixe
 Ainsi on peut obtenir un score sur l'irregularité des bords.
 
 
-## C : couleur
+## *C : couleur*
 Présence de plusieurs couleurs 
 
-## D : diametre
+## *D : diametre*
 Anormal si supérieur à 6mm \
 Mesure par morphoMath \
 Utilisation de la librairie `cv2.aruco` pour la detection de marqueur et recalage de l'image. 
 
 **TODO** : refaire l'image avec les marqueurs et diminuer la distance entre les marqueurs. 
 
-## E : evolution
+## *E : evolution*
 Changement de topologie 
 
 ---
