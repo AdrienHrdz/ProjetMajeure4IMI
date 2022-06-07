@@ -18,3 +18,7 @@ NormGrad = np.sqrt(np.square(Gx) + np.square(Gy))
 plt.imshow(NormGrad, cmap='gray')
 plt.colorbar()
 plt.show()
+
+'''
+Pour les bords ça marche pas en python. On le fait avec Matlab, le code est déjà prêt.
+'''

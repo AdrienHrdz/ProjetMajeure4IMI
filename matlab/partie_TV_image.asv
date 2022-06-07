@@ -37,10 +37,6 @@ figure(12)
 imshow(z_rgb)
 figure(1)
 imshow(z,[])
-figure(44)
-[Gx,Gy] = gradient(z);
-NormCarreZ = Gx.^2 + Gy.^2;
-imshow(NormCarreZ,[])
 
 %% choix de l'opérateur de régularisation
 gamma_choix = 'laplacien';
@@ -91,10 +87,10 @@ loglog(ENERGIE)
 uhat = uk;
 xhat = -Gt(uhat) + z;
 %%
-figure(6)
+figure(-)
+subplot(121)
 imshow(z)
-
-figure(7)
+subplot(122)
 imshow(xhat)
 
 %%
@@ -103,8 +99,8 @@ NormCarre = Gx.^2 + Gy.^2;
 %NormCarre = 10000 * NormCarre;
 figure(4)
 imshow(NormCarre,[])
-%colorbar
-%caxis([0 4.5e-3])
+colorbar
+caxis([0 4.5e-3])
 nbElnonNul = numel(NormCarre(NormCarre>0.1*max(NormCarre(:))));
 %moyenne = mean(mean(NormCarre))/(H*W) % moyenne sur le nb de pixels non nuls 
 moyenne = mean(mean(NormCarre))/nbElnonNul

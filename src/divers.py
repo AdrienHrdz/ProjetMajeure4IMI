@@ -22,7 +22,8 @@ def LECTURE_IMAGE(filename):
     m[2] = corners2[2][0][0]
     m[3] = corners2[3][0][1]
 
-    width, height = (501,501) #Taille de l'image après transformation
+    L = 501
+    width, height = (L,L) #Taille de l'image après transformation
     marker_coordinates = np.float32(m)
     true_coordinates   = np.float32([[0,0],[width,0],[width,height],[0,height]])
     trans_mat = cv2.getPerspectiveTransform(marker_coordinates,true_coordinates)
@@ -33,6 +34,10 @@ def LECTURE_IMAGE(filename):
 
 def main():
     filename = './aruco./IMG_20220607_174312.jpg'
+    img = cv2.imread(filename)
+    plt.imshow(img, 'gray')
+    plt.show()
+
     IMAGE = LECTURE_IMAGE(filename)
     plt.imshow(IMAGE, cmap='gray')
     plt.show()

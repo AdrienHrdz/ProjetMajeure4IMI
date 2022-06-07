@@ -7,6 +7,8 @@ def MESURE_DIAMETRE(filename):
     # Pre traitement
     IMAGE = LECTURE_IMAGE(filename)
     IMAGE = cv2.cvtColor(IMAGE, cv2.COLOR_RGB2GRAY)
+    plt.imshow(IMAGE, cmap='gray')
+    plt.show()
     ret,thresh1=cv2.threshold(IMAGE,125,255,cv2.THRESH_BINARY_INV)
     # bweuler, array_components = cv2.connectedComponents(IMAGE.astype(np.uint8))
     # print(bweuler)
