@@ -191,7 +191,7 @@ def asymetrie(filename,r,seuil):
     contour_list.append(c.astype(int))
     snake = cv2.drawContours(image=cv2.cvtColor(IMAGE2, cv2.COLOR_GRAY2BGR),contours=contour_list, contourIdx=-1, color=(255, 0, 0), thickness=1,lineType=cv2.LINE_AA)
     plt.imshow(snake)
-    cv2.imwrite("itération finale.png",snake)
+    cv2.imwrite("itération finale3.png",snake)
     plt.title('Itération finale')
 
 

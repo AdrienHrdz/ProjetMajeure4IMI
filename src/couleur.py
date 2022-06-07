@@ -6,7 +6,7 @@ from torch import int64, int8
 
 # plt.figure(1)
 # #importation de l'image a étudié
-# I=cv2.imread('data/gdb_benin.jpg',0)#.astype(float)
+# I=cv2.imread('data/color2.jpg',0)#.astype(float)
 # plt.subplot(221)
 # #prétraitement de l'image
 # plt.imshow(cv2.cvtColor(I,cv2.COLOR_BGR2RGB))
