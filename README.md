@@ -18,6 +18,10 @@ Bords mal délimités, irréguliers \
 Travail sur une coupe de l'image. 
 TV pour lisser la texture 
 detection de la valeur de la pente pour avoir le score. Pour mettre en oeuvre cela on utilise le code `Matlab` du TP2 variation totale.
+Problème avec l'utilisation de python, on reste sur `Matlab`. 
+Après TV, on a une image lissée sans texture. On calcule ensuite le gradient de cette image afin d'obtenir une information sur les pentes au niveau des contours.
+On effectue un moyennage de la norme du gradient au carré sur le nombre de pixels non nuls. 
+Ainsi on peut obtenir un score sur l'irregularité des bords.
 
 
 ## C : couleur
