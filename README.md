@@ -31,7 +31,14 @@ Ainsi on peut obtenir un score sur l'irregularité des bords.
 
 
 ## *C : couleur*
-Présence de plusieurs couleurs 
+Présence de plusieurs couleurs implique que la grain de beauté est malin.
+Nous décidons d'isoler le grain de beauté de la peau.
+Pour cela on récupère le snake, on réalise un masquage.
+On se retrouve avec seulement grain de beauté et un fond noir.
+On peut donc facilement appliquer un seuillage de type Kmeans sur le grain de beauté.
+Une fois le seuillage effectué on regarde la différence d'intensité (couleur) à l'intérieur du grain de beauté.
+Si cette dfférence est trop grande alors cela implique qu'il y a une tâche et donc le grain de beauté est malin.
+Si ce n'est pas le cas alors le grain de beauté est bénin.
 
 ## *D : diametre*
 Anormal si supérieur à 6mm \
