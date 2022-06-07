@@ -8,8 +8,8 @@ def MESURE_DIAMETRE(filename):
     IMAGE = LECTURE_IMAGE(filename)
     IMAGE = cv2.cvtColor(IMAGE, cv2.COLOR_RGB2GRAY)
     ret,thresh1=cv2.threshold(IMAGE,125,255,cv2.THRESH_BINARY_INV)
-    bweuler, array_components = cv2.connectedComponents(IMAGE.astype(np.uint8))
-    #print(bweuler)
+    # bweuler, array_components = cv2.connectedComponents(IMAGE.astype(np.uint8))
+    # print(bweuler)
     
     # Mesure grossiere
     n = 0
