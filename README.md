@@ -38,7 +38,7 @@ Anormal si supérieur à 6mm \
 Mesure par morphoMath \
 Utilisation de la librairie `cv2.aruco` pour la detection de marqueur et recalage de l'image. 
 
-**TODO** : refaire l'image avec les marqueurs et diminuer la distance entre les marqueurs. 
+**TODO** : expliquer méthode 
 
 ## *E : evolution*
 Changement de topologie 
