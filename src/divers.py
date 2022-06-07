@@ -32,7 +32,7 @@ def LECTURE_IMAGE(filename):
     return img_trans
 
 def main():
-    filename = './aruco./IMG_20220531_170740.jpg'
+    filename = './aruco./IMG_20220607_174312.jpg'
     IMAGE = LECTURE_IMAGE(filename)
     plt.imshow(IMAGE, cmap='gray')
     plt.show()

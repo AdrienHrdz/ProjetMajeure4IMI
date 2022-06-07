@@ -36,8 +36,9 @@ def MESURE_DIAMETRE(filename):
     # Conversion px => mm
     DIAMETRE_px = n+m
     COTE_IMAGE_px = 501
-    COTE_IMAGE_mm = 150
+    COTE_IMAGE_mm = 39
     DIAMETRE_mm = COTE_IMAGE_mm * DIAMETRE_px / COTE_IMAGE_px
+    DIAMETRE_mm = round(DIAMETRE_mm, 2)
     print(f'taille du diametre : {DIAMETRE_mm} mm')
     
     return DIAMETRE_mm
