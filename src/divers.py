@@ -22,7 +22,7 @@ def LECTURE_IMAGE(filename):
     m[2] = corners2[2][0][0]
     m[3] = corners2[3][0][1]
 
-    width, height = (500,500) #Taille de l'image après transformation
+    width, height = (501,501) #Taille de l'image après transformation
     marker_coordinates = np.float32(m)
     true_coordinates   = np.float32([[0,0],[width,0],[width,height],[0,height]])
     trans_mat = cv2.getPerspectiveTransform(marker_coordinates,true_coordinates)
