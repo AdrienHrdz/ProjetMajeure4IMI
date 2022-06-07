@@ -42,3 +42,14 @@ Utilisation de la librairie `cv2.aruco` pour la detection de marqueur et recalag
 
 ## E : evolution
 Changement de topologie 
+
+---
+### Soutenance :
+oral Mercredi 07/06/2022 à 13h30 
+
+Plan : 
+- Présentation du sujet
+- Présentation des différents critères (A, B, C, D, E)
+- Limites du projet
+- Pistes d'amélioration
+
