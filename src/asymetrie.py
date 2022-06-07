@@ -485,7 +485,7 @@ def asymetrie(filename,r,seuil):
 
 
 def main():
-    filename = 'data/gdb_benin.jpg'
+    filename = 'data/color2.jpg'
     if (filename=='data/color2.jpg'):
         seuil=125
         r=1.5
