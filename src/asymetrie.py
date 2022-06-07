@@ -10,7 +10,7 @@ import matplotlib.image as mpimg
 from PIL import Image 
 from scipy import ndimage
 
-def asymetrie(filename,r):
+def asymetrie(filename,r,seuil):
     benin=False
 
     plt.figure(1)
@@ -19,15 +19,18 @@ def asymetrie(filename,r):
     plt.subplot(221)
     #prétraitement de l'image
     plt.imshow(cv2.cvtColor(I,cv2.COLOR_BGR2RGB))
-    ret,thresh1=cv2.threshold(I,125,255,cv2.THRESH_BINARY)
+    plt.title('image originale')
+    ret,thresh1=cv2.threshold(I,seuil,255,cv2.THRESH_BINARY)
     plt.subplot(222)
     plt.imshow(cv2.cvtColor(thresh1,cv2.COLOR_BGR2RGB))
+    plt.title('image seuillée')
 
     S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
 
     I_open=cv2.dilate(cv2.erode(thresh1,S),S)
     plt.subplot(223)
     plt.imshow(cv2.cvtColor(I_open,cv2.COLOR_BGR2RGB))
+    plt.title('image après ouverture')
     #afin d'avoir le bon type
     TYPE=type(I)
 
@@ -193,7 +196,7 @@ def asymetrie(filename,r):
 
 
 
-
+    #inutile mais permet de mieux se repérer dans le snake
     for i in range(len(Xn)):
         if (i<250):
             color= "red"
@@ -205,7 +208,7 @@ def asymetrie(filename,r):
             color="yellow"
         plt.plot(Xn[i],-Yn[i],marker="o",color=color)
         
-    plt.title('Energie externe')
+    plt.title('snake en couleur')
     plt.show()
     #print(Xn)
     #print(Yn)
@@ -226,7 +229,7 @@ def asymetrie(filename,r):
 
     print("size Iopen : " +str(np.shape(I_open)))
     #seuillage de l'image pour la detection des cercles
-    src_img=I>=125
+    src_img=I>=seuil
 
     src_img=src_img.astype(np.uint8)
     src_img=src_img*255
@@ -246,11 +249,11 @@ def asymetrie(filename,r):
     plt.subplot(224)
     plt.imshow(cv2.cvtColor(src_img,cv2.COLOR_BGR2RGB))
     plt.imshow(cv2.cvtColor(color_img,cv2.COLOR_BGR2RGB))
-
+    plt.title('Detection des cercles')
     plt.figure(3)
     plt.imshow(I)
     plt.plot(circles_img[0,0,0],circles_img[0,0,1],marker="o",color="red")
-
+    plt.title('Tracé du cercle et du centre')
     #h etant un offset de 20 pixels pour d'autres critères
     h=20
     #affiche les paramètres pour la boite englobante
@@ -260,7 +263,7 @@ def asymetrie(filename,r):
     plt.figure(4)
     cropped=I_open[min(Yn-h).astype(int):max(Yn+h).astype(int),min(Xn-h).astype(int):max(Xn+h).astype(int)]
     plt.imshow(cropped,'gray')
-
+    plt.title('Image recadrée')
     #test hauteur/largeur
     #calcul de l'ecart entre la hauteur et la largeur
     ecart=abs((max(Xn).astype(int)-min(Xn).astype(int))-(max(Yn).astype(int)-min(Yn).astype(int)))
@@ -305,12 +308,14 @@ def asymetrie(filename,r):
 
     plt.figure(5)
     plt.imshow(cropped,'gray')
+    plt.title('Image recadrée de taille carrée')
     #on tourne notre image de 90 degres ou bien de 180 degrés on a le choix entre cv2.rotate_180 et cv2.rotate_90_clockwise ou cv2.rotate_90_counterclockwise
     cropped_rotate = cv2.rotate(cropped, cv2.ROTATE_90_CLOCKWISE)
     #cropped_rotate = ndimage.rotate(cropped, 45)
     #on affiche notre image originale recadrée et celle tourner 
     plt.figure(6)
     plt.imshow(cropped_rotate,'gray')
+    plt.title('Image recadrée carrée tournée de 90 degres')
     print(np.shape(cropped))
     print(np.shape(cropped_rotate))
     #on applique l'union moins l'intersection
@@ -322,7 +327,7 @@ def asymetrie(filename,r):
     union=cv2.bitwise_and(cropped_rotate,cropped,mask=None)
     plt.figure(7)
     plt.imshow(inter,'gray')
-    plt.title("intersection")
+    plt.title("intersection entre l'image cropped et celle tournée de 90 degres")
 
     cpta=0
     for i in range(h):
@@ -341,7 +346,7 @@ def asymetrie(filename,r):
                 cptc+=1
 
 
-    print(cpta,cptb,cptc)
+    print("ensemble A : ",cpta,"ensemble intersection : ",cptb,"ensemble B : ",cptc)
     dice=2*cptb/(cpta+cptc)
 
     print("dice : ",dice)
@@ -350,9 +355,10 @@ def asymetrie(filename,r):
         benin=True
     else:
         print("c'est malin pour dice")
-
+        benin=False
     plt.figure(8)
     plt.imshow(final,'gray')
+    plt.title("union - intersection")
     #on recupere les contours et on calcule leur aire
     cnt, hierarchy=cv2.findContours(final,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
     cnt2=cnt[0]
@@ -388,6 +394,7 @@ def asymetrie(filename,r):
         benin=True
     elif(ratio_final<critere):
         print("c'est malin pour ratio")
+        benin=False
     print("ratio_final : ",ratio_final)
 
 
@@ -399,7 +406,7 @@ def asymetrie(filename,r):
 
     #partie vrais positifs ...
     #l'intersection entre les deux images contient les vrais positifs
-
+    #calcul du nombre de pixels true positifs
     cpt_tp=0
     t1,s1=np.shape(inter)
     for i in range(t1):
@@ -408,7 +415,7 @@ def asymetrie(filename,r):
                 cpt_tp+=1
 
     print("true positifs :",cpt_tp)
-
+    #calcul du nombre de pixels true negatifs
     cpt_tn=0
     t2,s2=np.shape(inter)
     for i in range(t2):
@@ -457,9 +464,9 @@ def asymetrie(filename,r):
 
     print("false positifs :",cpt_fp)
 
-    plt.figure()
-    plt.imshow(I_test,'gray')
-    plt.title("test")
+    #plt.figure()
+    #plt.imshow(I_test,'gray')
+    #plt.title("test")
 
     #calcul de précision
     precision=cpt_tp/(cpt_tp+cpt_fp)
@@ -469,7 +476,7 @@ def asymetrie(filename,r):
         benin=True
     else:
         print("c'est malin pour precision")
-
+        benin=False
     print("finalement le gdb est : ",benin)
     plt.show()
     return benin
@@ -480,10 +487,16 @@ def asymetrie(filename,r):
 def main():
     filename = 'data/gdb_benin.jpg'
     if (filename=='data/color2.jpg'):
+        seuil=125
         r=1.5
     elif(filename=='data/gdb_benin.jpg'):
+        seuil=125
         r=3
-    asymetrie(filename,r)
+    elif (filename=='data/color3.jpg'):
+        seuil=90
+        r=1
+
+    asymetrie(filename,r,seuil)
     pass
 
 if __name__ == '__main__':
