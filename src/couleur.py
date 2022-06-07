@@ -2,7 +2,7 @@ from pickletools import uint8
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from torch import int64, int8
+
 
 # plt.figure(1)
 # #importation de l'image a étudié
@@ -182,9 +182,11 @@ from torch import int64, int8
 # plt.title('Itération finale')
 # plt.show()
 
-I_original=cv2.imread('data/gdb_benin.jpg')
+I_original=cv2.imread('data/color2.jpg')
 
 I_flout = cv2.blur(I_original,(9,9))
+
+lenx, leny, dim = np.shape(I_flout)
 
 plt.figure()
 plt.imshow(cv2.cvtColor(I_flout,cv2.COLOR_BGR2RGB))
@@ -192,7 +194,7 @@ plt.show()
 
 b,g,r = cv2.split(I_flout)
 
-snake_import = cv2.imread('itération finale.png')
+snake_import = cv2.imread('iteration_finale3.png')
 
 snakegray = cv2.cvtColor(snake_import, cv2.COLOR_BGR2GRAY)
 
@@ -214,7 +216,7 @@ I_masque_g = cv2.multiply(I_seuilinv, g)
 I_masque_r = cv2.multiply(I_seuilinv, r)
 
 
-I_masque = np.zeros((300,360,3))
+I_masque = np.zeros((lenx,leny,dim))
 I_masque = I_masque.astype(np.uint8)
 
 I_masque[:,:,0] = I_masque_b
@@ -235,7 +237,7 @@ plt.imshow(cv2.cvtColor(I_fin, cv2.COLOR_BGR2RGB))
 plt.show()
 
 
-lenx, leny, dim = np.shape(I_fin)
+
 
 Liste=[]
 for i in range(lenx):
