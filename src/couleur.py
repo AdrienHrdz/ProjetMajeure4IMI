@@ -182,19 +182,28 @@ import numpy as np
 # plt.title('Itération finale')
 # plt.show()
 
-I_original=cv2.imread('data/color2.jpg')
+I_original=cv2.imread('data/color.jpg')
 
 I_flout = cv2.blur(I_original,(9,9))
 
 lenx, leny, dim = np.shape(I_flout)
 
+#Conversion hsv
+HSV_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2HSV)
+
+h,s,v = cv2.split(HSV_img)
+
 plt.figure()
+plt.subplot(211)
 plt.imshow(cv2.cvtColor(I_flout,cv2.COLOR_BGR2RGB))
+plt.subplot(212)
+plt.imshow(v)
 plt.show()
 
 b,g,r = cv2.split(I_flout)
 
-snake_import = cv2.imread('iteration_finale3.png')
+#On récupère le snake
+snake_import = cv2.imread('iteration_finale5.png')
 
 snakegray = cv2.cvtColor(snake_import, cv2.COLOR_BGR2GRAY)
 
@@ -203,12 +212,14 @@ plt.imshow(snakegray)
 plt.title('Snake Gray')
 plt.show()
 
+#Seuillage
 ret,I_seuilinv = cv2.threshold(snakegray,254,255,cv2.THRESH_BINARY_INV)
 
 plt.figure()
 plt.imshow(I_seuilinv)
 plt.show()
 
+#On doit multiplier pour chaque composante pour rgb pour le masquage
 I_masque_b = cv2.multiply(I_seuilinv, b)
 
 I_masque_g = cv2.multiply(I_seuilinv, g)
@@ -223,27 +234,64 @@ I_masque[:,:,0] = I_masque_b
 I_masque[:,:,1] = I_masque_g
 I_masque[:,:,2] = I_masque_r
 
-#I_masque = cv2.cvtColor(I_masque, cv2.COLOR_BGR2RGB)
+
 plt.figure()
 plt.imshow(I_masque)
 plt.show()
 
 I_masque[I_masque == 255] = 1
 
+I_seuilinv[I_seuilinv == 255] = 1
+
+#Masquage pour RGB
 I_fin = cv2.multiply(I_masque, I_flout)
 
+#Masquage pour hsv en particulier v
+I_finv2 = cv2.multiply(I_seuilinv, v)
+
 plt.figure()
+plt.subplot(121)
 plt.imshow(cv2.cvtColor(I_fin, cv2.COLOR_BGR2RGB))
+plt.subplot(122)
+plt.imshow(I_finv2)
 plt.show()
 
 
-
-
+#Liste correspond aux intensités non nulles selon la composante v de mon gdb
 Liste=[]
 for i in range(lenx):
     for j in range(leny):
-            if(I_fin[i,j,0] != 0 or I_fin[i,j,1] != 0 or I_fin[i,j,2] != 0 ):
-                Liste.append([i,j])
+            if(I_finv2[i,j] != 0):
+                Liste.append(I_finv2[i,j])
+
+
+Liste = np.float32(Liste)
+
+# Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+# Set flags (Just to avoid line break in the code)
+flags = cv2.KMEANS_RANDOM_CENTERS
+# Apply KMeans
+k=2
+compactness,labels,centers = cv2.kmeans(Liste,k,None,criteria,10,flags)
+
+
+# Now plot 'centers' in yellow
+plt.hist(Liste,256,[0,256])
+plt.hist(centers,32,[0,256],color = 'y')
+plt.show()
+
+
+diff = max(centers)-min(centers)
+
+diff = np.uint8(diff)
+
+#On se base sur la diff pour un grain de beauté bénin
+if(diff<=52):
+    print('Grain de beauté bénin')
+else:
+    print('Grain de beauté malin')
+
 
 #Faire la moyenne des pixels de couleur (grain boté) et faire la différence entre les 2 kmeans et la moyenne
 
@@ -261,107 +309,105 @@ for i in range(lenx):
 
 #lenx, leny, dim = np.shape(I_flout)
 
-RGB_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2RGB)
+# RGB_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2RGB)
 
-HSV_img = cv2.cvtColor(I_flout, cv2.COLOR_BGR2HSV)
 
-h,s,v = cv2.split(HSV_img)
 
-lenx, leny = np.shape(h)
+# lenx, leny = np.shape(h)
 
-#Bon réglages pour color.jpg
-lower = np.array([14/2,100,0],dtype=np.uint8)
-upper = np.array([60/2,255,255],dtype=np.uint8)
-seg_h = cv2.inRange(HSV_img,lower,upper)
-
-#Idée post-traitement compare l'aire du grain de beauté à l'aire de la tâche de couleur si celle ci est trop importante alors malade
-
-#Réglages pour grainboTbien
-# lower = np.array([0/2,83,0],dtype=np.uint8)
-# upper = np.array([14/2,255,255],dtype=np.uint8)
+# #Bon réglages pour color.jpg
+# lower = np.array([14/2,100,0],dtype=np.uint8)
+# upper = np.array([60/2,255,255],dtype=np.uint8)
 # seg_h = cv2.inRange(HSV_img,lower,upper)
-# S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
-# seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
 
-I_cropped = cv2.imread('data/Capture_fig4_test2.PNG',0)
+# #Idée post-traitement compare l'aire du grain de beauté à l'aire de la tâche de couleur si celle ci est trop importante alors malade
+
+# #Réglages pour grainboTbien
+# # lower = np.array([0/2,83,0],dtype=np.uint8)
+# # upper = np.array([14/2,255,255],dtype=np.uint8)
+# # seg_h = cv2.inRange(HSV_img,lower,upper)
+# # S=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
+# # seg_h_open = cv2.morphologyEx(seg_h,cv2.MORPH_OPEN,S)
+
+# I_cropped = cv2.imread('data/Capture_fig4_test2.PNG',0)
 
 
 
 
 
-I_cropped2 = RGB_img[108:185,140:220]
+# I_cropped2 = RGB_img[108:185,140:220]
 
-lenx2, leny2, dim= np.shape(I_cropped2)
+# lenx2, leny2, dim= np.shape(I_cropped2)
 
-#I_resize= cv2.resize(I_cropped,(360,300),interpolation=cv2.INTER_AREA)
+# #I_resize= cv2.resize(I_cropped,(360,300),interpolation=cv2.INTER_AREA)
 
-plt.figure() # ouvre une nouvelle figure
-plt.subplot(221)
-plt.imshow(RGB_img) 
-plt.title('Image original RGB')
-plt.subplot(222)
-plt.imshow(I_cropped,'gray')
-plt.title('Image H ')
-plt.subplot(223)
-plt.imshow(s,'gray') 
-plt.title('Image S ')
-plt.subplot(224)
-plt.imshow(I_cropped2,'gray') 
-plt.title('Image Seg H ')
-plt.show()
+# plt.figure() # ouvre une nouvelle figure
+# plt.subplot(221)
+# plt.imshow(RGB_img) 
+# plt.title('Image original RGB')
+# plt.subplot(222)
+# plt.imshow(I_cropped,'gray')
+# plt.title('Image H ')
+# plt.subplot(223)
+# plt.imshow(s,'gray') 
+# plt.title('Image S ')
+# plt.subplot(224)
+# plt.imshow(I_cropped2,'gray') 
+# plt.title('Image Seg H ')
+# plt.show()
 
-#Méthode des K-means
-#Potentiellement fonctionnel pour color et color3
-#Si la différence de couleur entre le dernier k (grain de beauté) et l'avant dernier (grain de beauté ou tâche) est trop importante (à quantifier) alors => pas bien
+# #Méthode des K-means
+# #Potentiellement fonctionnel pour color et color3
+# #Si la différence de couleur entre le dernier k (grain de beauté) et l'avant dernier (grain de beauté ou tâche) est trop importante (à quantifier) alors => pas bien
 
-#Tableau bi-dimensionnel
+# #Tableau bi-dimensionnel
 
-pixel_vals1 = h.reshape((-1,1)) 
+# pixel_vals1 = I_finv2.reshape((-1,1)) 
   
-pixel_vals2 = I_fin.reshape((-1,3)) 
+# pixel_vals2 = I_fin.reshape((-1,3)) 
 
-pixel_vals1 = np.float32(pixel_vals1)
+# pixel_vals1 = np.float32(pixel_vals1)
 
-pixel_vals2 = np.float32(pixel_vals2)
+# pixel_vals2 = np.float32(pixel_vals2)
 
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.8) 
+# criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.8) 
   
-k = 3
-retval, labels, centers = cv2.kmeans(pixel_vals2, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
+# k = 3
+# retval, labels, centers = cv2.kmeans(pixel_vals1, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS) 
   
-centers = np.uint8(centers) 
-segmented_data = centers[labels.flatten()] 
+# centers = np.uint8(centers) 
+# segmented_data = centers[labels.flatten()] 
 
-#labels_img = labels.reshape((lenx,leny)) 
-labels_img = labels.reshape((lenx,leny)) 
+# #labels_img = labels.reshape((lenx,leny)) 
+# labels_img = labels.reshape((lenx,leny)) 
 
-segmented_image = segmented_data.reshape((I_fin.shape)) 
+# segmented_image = segmented_data.reshape((s.shape)) 
 
-Coords1 = []
-Coords2 = []
-bool1=1
-bool2=1
-for i in range(lenx):
-    for j in range(leny):
-        if(labels_img[i,j] == 0 and bool1 == 1):
-            Coords1.append(i)
-            Coords1.append(j)
-            bool1=0
-        if(labels_img[i,j]== 1 and bool2 == 1):
-            Coords2.append(i)
-            Coords2.append(j)
-            bool2=0
+# Coords1 = []
+# Coords2 = []
+# bool1=1
+# bool2=1
+# for i in range(lenx):
+#     for j in range(leny):
+#         if(labels_img[i,j] == 0 and bool1 == 1):
+#             Coords1.append(i)
+#             Coords1.append(j)
+#             bool1=0
+#         if(labels_img[i,j]== 1 and bool2 == 1):
+#             Coords2.append(i)
+#             Coords2.append(j)
+#             bool2=0
 
-#[r1,g1,b1] = segmented_image[Coords1[0],Coords1[1]]
-#[r2,g2,b2] = segmented_image[Coords2[0],Coords2[1]]
+# #[r1,g1,b1] = segmented_image[Coords1[0],Coords1[1]]
+# #[r2,g2,b2] = segmented_image[Coords2[0],Coords2[1]]
 
-teinte1=segmented_image[Coords1[0],Coords1[1]]
-teinte2=segmented_image[Coords2[0],Coords2[1]]
+# teinte1=segmented_image[Coords1[0],Coords1[1]]
+# teinte2=segmented_image[Coords2[0],Coords2[1]]
 
 
-plt.figure() # ouvre une nouvelle figure
-plt.imshow(segmented_image)
-plt.show()
+# plt.figure() # ouvre une nouvelle figure
+# plt.imshow(segmented_image)
+# plt.show()
 
 
 ## mask of red color pour RGB
