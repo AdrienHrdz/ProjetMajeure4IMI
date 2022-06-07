@@ -16,7 +16,9 @@ Mesure du nombre de pixels de différences pour faire un ratio
 On regarde si la condition est respecté pour savoir si c'est bénin ou non
 Utilisation de la méthode dice pour obtenir un autre résultat et donc une interprétation différente
 Utilisation Metrics for the evaluation of supervised classification models
-Puis on retourne le booléen benin à false si le grain de beauté est malin et à true si le grain de beauté est bénin
+Puis on retourne le booléen benin à false si le grain de beauté est malin et à true si le grain de beauté est bénin.
+
+
 ## B : bords
 Bords mal délimités, irréguliers \
 Travail sur une coupe de l'image. 
