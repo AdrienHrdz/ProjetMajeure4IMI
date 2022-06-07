@@ -485,7 +485,7 @@ def asymetrie(filename,r,seuil):
 
 
 def main():
-    filename = 'data/color2.jpg'
+    filename = 'data/color.jpg'
     if (filename=='data/color2.jpg'):
         seuil=125
         r=1.5
@@ -495,7 +495,9 @@ def main():
     elif (filename=='data/color3.jpg'):
         seuil=90
         r=1
-
+    elif (filename=='data/color.jpg'):
+        seuil=150
+        r=2
     asymetrie(filename,r,seuil)
     pass
 
