@@ -3,14 +3,24 @@ close all
 clc
 
 %% param
-xbar = rgb2gray(im2double(imread("flower.png")));
-sigma = 0.1;
-n = sigma*randn(size(xbar));
-z = rgb2gray(im2double(imread("gdb_benin.jpg")));
+%xbar = rgb2gray(im2double(imread("flower.png")));
+%sigma = 0.1;
+%n = sigma*randn(size(xbar));
+%z = rgb2gray(im2double(imread("gdb_benin.jpg")));
 %z = rgb2gray(im2double(imread("color2.jpg")));
 %z = z(2:end-1, 2:end-1);
-z = z(108-10:185+10,140-10:220+10); % boite englob du gdb sain
+%z = z(108-10:185+10,140-10:220+10); % boite englob du gdb sain
 %z = z(58-10:144+10, 39-10:129+10); % boitr englob malsain
+gdb = 'color2';
+switch gdb
+    case 'benin'
+        z = rgb2gray(im2double(imread("gdb_benin.jpg")));
+        z = z(108-10:185+10,140-10:220+10); % boite englob du gdb sain
+    case 'color2'
+        z = rgb2gray(im2double(imread("color2.jpg")));
+        z = z(58-10:144+10, 39-10:129+10); % boitr englob malsain
+end
+
 [H,W] = size(z);
 lambda = 50;
 gamma = 0.005;
