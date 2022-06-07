@@ -22,7 +22,7 @@ switch gdb
 end
 
 [H,W] = size(z);
-lambda = 50;
+lambda = 15;
 gamma = 0.005;
 figure(1)
 imshow(z,[])
