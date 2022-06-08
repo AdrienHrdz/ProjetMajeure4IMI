@@ -60,3 +60,7 @@ Plan :
 - Limites du projet
 - Pistes d'amélioration
 
+---
+Pour utiliser le projet il faut installer les librairies nécessaires preésentes dans le fichier *requirements.txt*, ou alors excécuter la commande suivante :
+
+`pip install -r requirements.txt`

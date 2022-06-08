@@ -3,7 +3,6 @@ import cv2
 import matplotlib.pyplot as plt
 import scipy as sp
 from divers import LECTURE_IMAGE
-import pypher
 
 # filename = '../data/gdb_benin.jpg'
 # z = LECTURE_IMAGE(filename)
