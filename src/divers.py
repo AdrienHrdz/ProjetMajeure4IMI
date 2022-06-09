@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def LECTURE_IMAGE(filename):
+def LECTURE_IMAGE(filename, cmap='gray'):
     # doc : 
     # https://linuxtut.com/fr/c6e468da7007734c897f/
 
@@ -29,7 +29,7 @@ def LECTURE_IMAGE(filename):
     trans_mat = cv2.getPerspectiveTransform(marker_coordinates,true_coordinates)
     img_trans = cv2.warpPerspective(img,trans_mat,(width, height))
     img_trans = cv2.cvtColor(img_trans, cv2.COLOR_BGR2RGB)
-
+    
     return img_trans
 
 def main():
