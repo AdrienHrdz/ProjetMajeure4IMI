@@ -1,56 +1,56 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import scipy as sp
+import scipy.signal as signal
 from divers import LECTURE_IMAGE
 
-# filename = '../data/gdb_benin.jpg'
-# z = LECTURE_IMAGE(filename)
-z = cv2.imread('./data/gdb_benin.jpg',0).astype(float)
-# z = cv2.cvtColor(z, cv2.COLOR_RGB2GRAY)
-# z = z[2:-2, 2:-2]
-plt.imshow(z, cmap='gray')
-plt.title('Z')
-plt.show()
-(H,W) = np.shape(z)
-lamb = 1.5
-gamma = 0.005
+
+## Id
+def Id(x):
+    return x
+
+## Id Transpose
+def Idt(x):
+    return x
+
+## GRADIENT
+def D(x):
+    dim = (np.min(np.shape(x)) > 1) + 1
+    if dim == 1:
+        pass
+    elif dim == 2:
+        ker = np.array([[0,1,0], [1,-4,1], [0,1,0]], dtype=np.float64)
+        lap = signal.convolve2d(x, ker, mode='same', boundary='symm')
+    return lap
+
+## GRADIENT Transpose
+def Dt(x):
+    dim = (np.min(np.shape(x)) > 1) + 1
+    if dim == 1:
+        pass
+    elif dim == 2:
+        ker = np.array([[0,1,0], [1,-4,1], [0,1,0]], dtype=np.float64)
+        lap = signal.convolve2d(x, ker, mode='same', boundary='symm')
+    return lap
 
 ## LAPLACIAN
 def L(x):
     dim = (np.min(np.shape(x)) > 1) + 1
     if dim == 1:
-        ker = [1,-2,1]
-        # Faire zpadding 1D
-        OTF = np.fft.fft(ker, np.size(x))
-        lap = np.real(np.fft.ifft( OTF * np.fft.fft(x) ))
+        pass
     elif dim == 2:
-        ker = [[0,1,0],[1,-4,1],[0,1,0]] # V4
-        # ker = [[1,1,1],[1,-8,1],[1,1,1]] # V8
-        ker_padding = np.zeros(np.shape(x))
-        (H,W) = np.shape(ker_padding)
-        ker_padding[H//2 - 1:H//2 +2 , W//2 - 1:W//2 +2] = ker
-        
-        OTF = np.fft.fft2(ker, np.shape(x))
-        lap = np.real(np.fft.ifft2( OTF * np.fft.fft2(x) ))
+        ker = np.array([[0,1,0], [1,-4,1], [0,1,0]], dtype=np.float64)
+        lap = signal.convolve2d(x, ker, mode='same', boundary='symm')
     return lap
 
 ## LAPLACIAN Transpose
 def Lt(x):
     dim = (np.min(np.shape(x)) > 1) + 1
     if dim == 1:
-        ker = [1,-2,1]
-        # Faire zpadding 1D
-        OTF = np.fft.fft(ker, np.size(x))
-        lap = np.real(np.fft.ifft(np.conj(OTF * np.fft.fft(x))))
+        pass
     elif dim == 2:
-        ker = [[0,1,0],[1,-4,1],[0,1,0]] # V4
-        # ker = [[1,1,1],[1,-8,1],[1,1,1]] # V8
-        ker_padding = np.zeros(np.shape(x))
-        (H,W) = np.shape(ker_padding)
-        ker_padding[H//2 - 1:H//2 +2 , W//2 - 1:W//2 +2] = ker
-        OTF = np.fft.fft2(ker, np.shape(x))
-        lap = np.real(np.fft.ifft2(OTF * np.fft.fft2(x)))
+        ker = np.array([[0,1,0], [1,-4,1], [0,1,0]], dtype=np.float64)
+        lap = signal.convolve2d(x, ker, mode='same', boundary='symm')
     return lap
 
 ## Prox norme L0
@@ -61,33 +61,65 @@ def prox_tau_L0(x, tau):
 def prox_tau_L1(x, tau):
     return (x>tau)*(x-tau) + (x<-tau)*(x+tau) 
 
-G = L
-Gt = Lt
 
-def gradF(u):
-    grad = -G(-Gt(u)+z)
-    return grad
+def total_variation(z, lamb, gamma, operator, Niter):
+    # Choix de l'opérateur
+    if operator == 'id':
+        G = Id
+        Gt = Idt
+    elif operator == 'gradient':
+        G = D
+        Gt = Dt
+    elif operator == 'laplacian':
+        G = L
+        Gt = Lt
 
-Niter = 1e3
-iter = 0
-ENERGIE = list()
-uk = G(z)
-while iter < Niter:
-    uk1 = uk - gamma*gradF(uk) - gamma*prox_tau_L0( uk/gamma - gradF(uk), lamb/gamma)
-    # faire calcul énergie pour voir si on a convergé
-    cout = 0.5*np.linalg.norm(-Gt(uk1)-z, "fro")**2 + lamb*np.linalg.norm(uk1, 1)
-    ENERGIE.append(cout)
-    uk = uk1
-    # print(iter)
-    iter += 1
+    def gradF(u):
+        grad = -G(-Gt(u)+z)
+        return grad
 
-uhat = uk
-xhat = -Gt(uhat) + z
-plt.figure()
-plt.imshow(xhat, cmap='gray')
-plt.figure()
-plt.loglog(ENERGIE)
-plt.show()
+    # initialisation
+    iter = 0
+    ENERGIE = list()
+    uk = G(z)
 
+    # boucle
+    while iter < Niter:
+        uk1 = uk - gamma*gradF(uk) - gamma*prox_tau_L0( uk/gamma - gradF(uk), lamb/gamma)
+        # faire calcul énergie pour voir si on a convergé
+        cout = 0.5*np.linalg.norm(-Gt(uk1)-z, "fro")**2 + lamb*np.linalg.norm(uk1, 1)
+        ENERGIE.append(cout)
+        uk = uk1
+        iter += 1
 
+    # post traitement
+    uhat = uk
+    xhat = -Gt(uhat) + z
+    return xhat, ENERGIE
+
+def main():
+    z = cv2.imread('./data/gdb_benin.jpg',0).astype(float)
+    plt.imshow(z, cmap='gray')
+    plt.title('Z')
+    
+    lamb = 100
+    gamma = 0.005
+    Niter = 1e3
+    operator = 'laplacian'
+    xhat, ENERGIE = total_variation(z, lamb, gamma, operator, Niter)
+
+    plt.figure()
+    plt.imshow(xhat, cmap='gray')
+    plt.figure()
+    plt.loglog(ENERGIE)
+    
+    (Gx, Gy) = np.gradient(xhat)
+    NormCarre = np.square(Gx) + np.square(Gy)
+    plt.figure()
+    plt.imshow(NormCarre, cmap='gray')
+    plt.show()
+    
+
+if __name__ == '__main__':
+    main()
 

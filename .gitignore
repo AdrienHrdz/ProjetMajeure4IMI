@@ -1,5 +1,7 @@
 # Files ignored
 Projet_de_majeur.pptx
+src/test/divers.py
+src/test/test_*.py
 
 # Folders ignored
 .vscode/
